@@ -3,6 +3,7 @@ const zod = require('zod');
 const jwt = require('jsonwebtoken');
 const { User } = require('../db');
 const { JWT_SECRET } = require('../config');
+const { authMiddleware } = require('../middleware');
 const router = express.Router();
 
 const signupBody = zod.object({
@@ -86,6 +87,54 @@ router.post('/signin', async (req,res)=>{
 
     res.json({
         token: token
+    })
+})
+
+const updateBody = zod.object({
+    firstName: zod.string().optional(),
+    lastName: zod.string().optional(),
+    password: zod.string().optional(),
+})
+
+router.put('/', authMiddleware, async (req, res)=>{
+    const { success } = updateBody.safeParse(req.body);
+
+    if(!success){
+        res.status(411).json({
+            message: "Wrong Inputs"
+        })
+    }
+
+    await User.updateOne({_id: req.userId}, req.body);
+
+    res.json({
+        message: "Updated successfully!"
+    })
+})
+
+//to search users
+router.get('/bulk', async (req, res)=>{
+    const filter = req.query.filter || "";
+
+    const users = await User.find({
+        $or: [{
+            firstName: {
+                $regex: RegExp(filter, 'i') // i for case-insensitive search
+            }
+        }, {
+            lastName: {
+                $regex: RegExp(filter, 'i')
+            }
+        }]
+    })
+
+    res.json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
     })
 })
 
