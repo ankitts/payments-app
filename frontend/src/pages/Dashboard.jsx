@@ -1,5 +1,13 @@
+import Appbar from "../components/Appbar";
+import Balance from "../components/Balance";
+import Users from "../components/Users";
+
 export default function Dashboard() {
   return (
-    <div>Dashboard</div>
+    <div>
+        <Appbar />
+        <Balance amount={10000}/>
+        <Users />
+    </div>
   )
 }
