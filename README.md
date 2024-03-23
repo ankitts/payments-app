@@ -1,1 +1,1 @@
-# Paytm
+# Payments App
