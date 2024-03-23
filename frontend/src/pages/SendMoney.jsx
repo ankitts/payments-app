@@ -1,8 +1,16 @@
+import { useState } from "react";
 import Button from "../components/Button";
 import Heading from "../components/Heading";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
 
 export default function SendMoney() {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+  const name = searchParams.get("name");
+  const [amount, setAmount] = useState("");
+  const navigate = useNavigate();
+
   return (
     <div className="bg-slate-300 h-screen flex justify-center">
         <div className="flex flex-col justify-center">
@@ -11,12 +19,12 @@ export default function SendMoney() {
                 <div className="flex mt-10">
                     <div className="rounded-full bg-black h-12 w-12 flex justify-center">
                         <div className="flex flex-col justify-center font-semibold text-white">
-                            H
+                            {name[0].toUpperCase()}
                         </div>
                     </div>
                     <div className="flex flex-col justify-center pl-4">
                         <div className="text-lg font-semibold">
-                            Harkirat Singh
+                            {name}
                         </div>
                     </div>
                 </div>
@@ -24,10 +32,26 @@ export default function SendMoney() {
                     Amount (in Rs)
                 </div>
                 <div className="pt-1">
-                    <input type="text" placeholder="Enter Amount" className="border border-slate-200 w-full h-10 rounded-md px-3 py-2 text-sm"/>
+                    <input 
+                        onChange={(e)=>{
+                            setAmount(e.target.value);
+                        }}
+                        type="text" placeholder="Enter Amount" className="border border-slate-200 w-full h-10 rounded-md px-3 py-2 text-sm"
+                    />
                 </div>
                 <div className="py-2">
-                    <button className="bg-black w-full rounded-md px-2 py-1 text-white hover:text-green-500 text-lg font-semibold">
+                    <button onClick={async()=>{
+                        const response = await axios.post("http://localhost:3000/api/v1/account/transfer",{
+                            "to": id,
+                            "amount": amount
+                        },{
+                            headers: {
+                                'Authorization': "Bearer " + localStorage.getItem("token")
+                            }
+                        })
+                        alert("Payment Successful");
+                        navigate("/dashboard")
+                    }} className="bg-black w-full rounded-md px-2 py-1 text-white hover:text-green-500 text-lg font-semibold">
                         Initiate Transfer
                     </button>
                 </div>

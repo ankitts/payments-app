@@ -118,6 +118,13 @@ router.put('/', authMiddleware, async (req, res)=>{
     })
 })
 
+router.get('/currentUser', authMiddleware, async(req,res)=>{
+    const currentUser = await User.findOne({_id: req.userId});
+    res.json({
+        currentUser
+    })
+})
+
 //to search users
 router.get('/bulk', async (req, res)=>{
     const filter = req.query.filter || "";
